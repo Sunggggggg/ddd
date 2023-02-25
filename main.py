@@ -43,6 +43,8 @@ torch.manual_seed(args.seed)    # setting seed for random number generation
 output_height = 55 
 output_width = 74
 
+folder_name = "models/" + args.model_folder
+if not os.path.exists(folder_name): os.mkdir(folder_name)
 
 ##########
 num_worker = 2
@@ -74,10 +76,10 @@ if args.test == 'test':
                                                             depth_transform = depth_data_transforms), 
                                                 batch_size = args.batch_size, 
                                                 shuffle = False, num_workers = num_worker)
-    print("Test DataSet info : ", train_loader)
+    print("Test DataSet info : ", train_loader.shape)
 
-print("Train DataSet info : ", train_loader)
-print("Val DataSet info : ", train_loader)
+print("Train DataSet info : ", train_loader.shape)
+print("Val DataSet info : ", train_loader.shape)
 
 
 from model import coarseNet, fineNet
@@ -188,6 +190,10 @@ def train_coarse(epoch):
         train_coarse_loss += loss.item()
     train_coarse_loss /= (batch_idx + 1)
 
+    img_file = folder_name + "/" + 'img_coarse' + str(epoch) + 'jpg'
+    plt.show(output, cmap = 'gray')
+    plt.savefig()
+
     print('Epoch: {} Training set(Coarse) average loss: {:.4f}'.format(epoch, train_coarse_loss))
     return train_coarse_loss
     
@@ -217,6 +223,11 @@ def train_fine(epoch):
         fine_optimizer.step()
         train_fine_loss += loss.item()
     train_fine_loss /= (batch_idx + 1)
+
+    img_file = folder_name + "/" + 'img_fine' + str(epoch) + 'jpg'
+    plt.show(output, cmap = 'gray')
+    plt.savefig()
+
     print('Epoch: {} Training set(Fine) average loss: {:.4f}'.format(epoch, train_fine_loss))
     return train_fine_loss
     
@@ -265,7 +276,7 @@ def coarse_validation(epoch, training_loss):
     abs_relative_difference_loss /= (batch_idx + 1)
     squared_relative_difference_loss /= (batch_idx + 1)
 
-    print('Validation set: Average loss(Coarse): {:.4f}'.format(coarse_validation_loss))
+    print('\nValidation set: Average loss(Coarse): {:.4f} \n'.format(coarse_validation_loss))
     print('Epoch: {}    {:.4f}      {:.4f}      {:.4f}      {:.4f}      {:.4f}      {:.4f}      {:.4f}      {:.4f}      {:.4f}'.format(epoch, training_loss, 
         coarse_validation_loss, delta1_accuracy, delta2_accuracy, delta3_accuracy, rmse_linear_loss, rmse_log_loss, 
         abs_relative_difference_loss, squared_relative_difference_loss))
@@ -307,13 +318,12 @@ def fine_validation(epoch, training_loss):
     rmse_log_loss /= (batch_idx + 1)
     abs_relative_difference_loss /= (batch_idx + 1)
     squared_relative_difference_loss /= (batch_idx + 1)
-    print('Validation set: Average loss(Fine): {:.4f}'.format(fine_validation_loss))
+    # print('\nValidation set: Average loss(Fine): {:.4f} \n'.format(fine_validation_loss))
     print('Epoch: {}    {:.4f}      {:.4f}      {:.4f}      {:.4f}      {:.4f}      {:.4f}      {:.4f}      {:.4f}      {:.4f}'.format(epoch, training_loss, 
         fine_validation_loss, delta1_accuracy, delta2_accuracy, delta3_accuracy, rmse_linear_loss, rmse_log_loss, 
         abs_relative_difference_loss, squared_relative_difference_loss))
 
-folder_name = "models/" + args.model_folder
-if not os.path.exists(folder_name): os.mkdir(folder_name)
+
 
 print("********* Training the Coarse Model **************")
 print("Epochs:     Train_loss  Val_loss    Delta_1     Delta_2     Delta_3    rmse_lin    rmse_log    abs_rel.  square_relative")
@@ -321,9 +331,11 @@ print("Paper Val:                          (0.618)     (0.891)     (0.969)     (
 
 for epoch in range(1, args.epochs + 1):
     # print("********* Training the Coarse Model **************")
+    
     training_loss = train_coarse(epoch)
     coarse_validation(epoch, training_loss)
     model_file = folder_name + "/" + 'coarse_model_' + str(epoch) + '.pth'
+    
     if(epoch%10 == 0):
         torch.save(coarse_model.state_dict(), model_file)
 
