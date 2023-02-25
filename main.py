@@ -265,7 +265,7 @@ def coarse_validation(epoch, training_loss):
     abs_relative_difference_loss /= (batch_idx + 1)
     squared_relative_difference_loss /= (batch_idx + 1)
 
-    print('\nValidation set: Average loss(Coarse): {:.4f} \n'.format(coarse_validation_loss))
+    print('Validation set: Average loss(Coarse): {:.4f}'.format(coarse_validation_loss))
     print('Epoch: {}    {:.4f}      {:.4f}      {:.4f}      {:.4f}      {:.4f}      {:.4f}      {:.4f}      {:.4f}      {:.4f}'.format(epoch, training_loss, 
         coarse_validation_loss, delta1_accuracy, delta2_accuracy, delta3_accuracy, rmse_linear_loss, rmse_log_loss, 
         abs_relative_difference_loss, squared_relative_difference_loss))
@@ -321,7 +321,6 @@ print("Paper Val:                          (0.618)     (0.891)     (0.969)     (
 
 for epoch in range(1, args.epochs + 1):
     # print("********* Training the Coarse Model **************")
-    
     training_loss = train_coarse(epoch)
     coarse_validation(epoch, training_loss)
     model_file = folder_name + "/" + 'coarse_model_' + str(epoch) + '.pth'
