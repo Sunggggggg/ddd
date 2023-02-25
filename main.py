@@ -307,7 +307,7 @@ def fine_validation(epoch, training_loss):
     rmse_log_loss /= (batch_idx + 1)
     abs_relative_difference_loss /= (batch_idx + 1)
     squared_relative_difference_loss /= (batch_idx + 1)
-    # print('\nValidation set: Average loss(Fine): {:.4f} \n'.format(fine_validation_loss))
+    print('Validation set: Average loss(Fine): {:.4f}'.format(fine_validation_loss))
     print('Epoch: {}    {:.4f}      {:.4f}      {:.4f}      {:.4f}      {:.4f}      {:.4f}      {:.4f}      {:.4f}      {:.4f}'.format(epoch, training_loss, 
         fine_validation_loss, delta1_accuracy, delta2_accuracy, delta3_accuracy, rmse_linear_loss, rmse_log_loss, 
         abs_relative_difference_loss, squared_relative_difference_loss))
