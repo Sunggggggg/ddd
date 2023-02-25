@@ -20,8 +20,6 @@ from mpl_toolkits.axes_grid1 import ImageGrid
 parser = argparse.ArgumentParser(description='PyTorch depth map prediction example')
 parser.add_argument('model_folder', type=str, metavar='F',
                     help='In which folder do you want to save the model')
-parser.add_argument('select', type=str, help= 'train /val / test')
-
 parser.add_argument('--data', type=str, default='data', metavar='D',
                     help="folder where data is located. train_data.zip and test_data.zip need to be found in the folder")
 parser.add_argument('--batch-size', type = int, default = 32, metavar = 'N',
@@ -36,8 +34,8 @@ parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
 parser.add_argument('--suffix', type=str, default='', metavar='D',
                     help='suffix for the filename of models and output files')
-
-
+parser.add_argument('--test', type=str, default='', metavar='D',
+                    help='import test data set')
 args = parser.parse_args()
 
 torch.manual_seed(args.seed)    # setting seed for random number generation
@@ -50,34 +48,37 @@ output_width = 74
 num_worker = 2
 filename = 'nyu_depth_v2_labeled.mat'
 
-datatype = args.select
 ##########
 
 from data import NYUDataset, rgb_data_transforms, depth_data_transforms
 from image_helper import plot_grid
 
-if datatype == 'train':
-    train_loader = torch.utils.data.DataLoader(NYUDataset( filename, 
-                                                        'training', 
-                                                            rgb_transform = rgb_data_transforms, 
-                                                            depth_transform = depth_data_transforms), 
-                                                batch_size = args.batch_size, 
-                                                shuffle = True, num_workers = num_worker)
-if datatype == 'val':
-    val_loader = torch.utils.data.DataLoader(NYUDataset( filename,
-                                                        'validation', 
-                                                            rgb_transform = rgb_data_transforms, 
-                                                            depth_transform = depth_data_transforms), 
-                                                batch_size = args.batch_size, 
-                                                shuffle = False, num_workers = num_worker)
 
-if datatype == 'test':
+train_loader = torch.utils.data.DataLoader(NYUDataset( filename, 
+                                                    'training', 
+                                                        rgb_transform = rgb_data_transforms, 
+                                                        depth_transform = depth_data_transforms), 
+                                            batch_size = args.batch_size, 
+                                            shuffle = True, num_workers = num_worker)
+val_loader = torch.utils.data.DataLoader(NYUDataset( filename,
+                                                    'validation', 
+                                                        rgb_transform = rgb_data_transforms, 
+                                                        depth_transform = depth_data_transforms), 
+                                            batch_size = args.batch_size, 
+                                            shuffle = False, num_workers = num_worker)
+
+if args.test == 'test':
     test_loader = torch.utils.data.DataLoader(NYUDataset( filename,
                                                         'test', 
                                                             rgb_transform = rgb_data_transforms, 
                                                             depth_transform = depth_data_transforms), 
                                                 batch_size = args.batch_size, 
                                                 shuffle = False, num_workers = num_worker)
+    print("Test DataSet info : ", train_loader)
+
+print("Train DataSet info : ", train_loader)
+print("Val DataSet info : ", train_loader)
+
 
 from model import coarseNet, fineNet
 coarse_model = coarseNet()
@@ -320,10 +321,9 @@ print("Paper Val:                          (0.618)     (0.891)     (0.969)     (
 
 for epoch in range(1, args.epochs + 1):
     # print("********* Training the Coarse Model **************")
-    if datatype == 'train':
-        training_loss = train_coarse(epoch)
-    if datatype == 'val':
-        coarse_validation(epoch, training_loss)
+    
+    training_loss = train_coarse(epoch)
+    coarse_validation(epoch, training_loss)
     model_file = folder_name + "/" + 'coarse_model_' + str(epoch) + '.pth'
     if(epoch%10 == 0):
         torch.save(coarse_model.state_dict(), model_file)
@@ -335,10 +335,9 @@ print("Epochs:     Train_loss  Val_loss    Delta_1     Delta_2     Delta_3    rm
 print("Paper Val:                          (0.611)     (0.887)     (0.971)     (0.907)     (0.285)     (0.215)     (0.212)")
 for epoch in range(1, args.epochs + 1):
     # print("********* Training the Fine Model ****************")
-    if datatype == 'train':
-        training_loss = train_fine(epoch)
-    if datatype == 'val':
-        fine_validation(epoch, training_loss)
+    
+    training_loss = train_fine(epoch)
+    fine_validation(epoch, training_loss)
     model_file = folder_name + "/" + 'fine_model_' + str(epoch) + '.pth'
-    if(epoch%5 == 0):
+    if(epoch%10 == 0):
         torch.save(fine_model.state_dict(), model_file)

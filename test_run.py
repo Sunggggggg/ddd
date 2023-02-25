@@ -55,15 +55,32 @@ image = image.view(1, 3, 228, 304)
 coarse_output = coarse_model(image)
 fine_output = fine_model(image, coarse_output)
 
+print("Before")
+print("input :", image.shape, type(image))
+print("coarse_output :", coarse_output.shape, type(coarse_output))
+print("fine_output :", fine_output.shape, type(fine_output))
+
+coarse_output = np.transpose(coarse_output[0][0].detach().cpu().numpy(), (0, 1))
+fine_output = np.transpose(fine_output[0][0].detach().cpu().numpy(), (0, 1))
+image = np.transpose(input_image, (1, 2, 0))
+
+print("After")
+print("input :", image.shape, type(image))
+print("coarse_output :", coarse_output.shape, type(coarse_output))
+print("fine_output :", fine_output.shape, type(fine_output))
+
 plt.figure(1, figsize=(9, 3))
 plt.subplot(131)
 plt.gca().set_title('input')
-plt.imshow(np.transpose(input_image, (1, 2, 0)), interpolation="nearest")
+plt.imshow(image, interpolation="nearest")
+
 plt.subplot(132)
 plt.gca().set_title('coarse_output')
-plt.imshow(np.transpose(coarse_output[0][0].detach().cpu().numpy(), (0, 1)), interpolation="nearest")
+plt.imshow(coarse_output, interpolation="nearest")
+
 plt.subplot(133)
 plt.gca().set_title('fine_output')
-plt.imshow(np.transpose(fine_output[0][0].detach().cpu().numpy(), (0, 1)), interpolation="nearest")
+plt.imshow(fine_output, interpolation="nearest")
 plt.suptitle('Depth Map Prediction of Input Image')
+
 plt.show()
