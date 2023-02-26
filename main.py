@@ -179,7 +179,8 @@ def train_coarse(epoch):
         coarse_optimizer.zero_grad()
 
         output = coarse_model(rgb.type(dtype))
-        loss = custom_loss_function(output, depth)
+        #loss = custom_loss_function(output, depth)
+        loss = scale_invariant(output, depth)
         loss.backward()
         coarse_optimizer.step()
         train_coarse_loss += loss.item()
@@ -209,7 +210,8 @@ def train_fine(epoch):
         fine_optimizer.zero_grad()
         coarse_output = coarse_model(rgb.type(dtype))   # it should print last epoch error since coarse is fixed.
         output = fine_model(rgb.type(dtype), coarse_output.type(dtype))
-        loss = custom_loss_function(output, depth)
+        #loss = custom_loss_function(output, depth)
+        loss = scale_invariant(output, depth)
         loss.backward()
         fine_optimizer.step()
         train_fine_loss += loss.item()
