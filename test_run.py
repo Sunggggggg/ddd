@@ -56,8 +56,8 @@ image = image.view(1, 3, 228, 304)
 coarse_output = coarse_model(image)
 fine_output = fine_model(image, coarse_output)
 
+###################################################################################
 print("Before")
-print("input :", image.shape, type(image))
 print("coarse_output :", coarse_output.shape, type(coarse_output))
 print("fine_output :", fine_output.shape, type(fine_output))
 
@@ -65,9 +65,15 @@ coarse_output = np.transpose(coarse_output[0][0].detach().cpu().numpy(), (0, 1))
 fine_output = np.transpose(fine_output[0][0].detach().cpu().numpy(), (0, 1))
 image = np.transpose(input_image, (1, 2, 0))
 
-coarse_output = coarse_output.astype()
+coarse_output = (coarse_output - coarse_output.min())/(coarse_output.max() - coarse_output.min())
+coarse_output = coarse_output * 255
+coarse_output = coarse_output.astype('uint8')
+
+fine_output = (fine_output - fine_output.min())/(fine_output.max() - fine_output.min())
+fine_output = fine_output * 255
+fine_output = fine_output.astype('uint8')
+
 print("After")
-print("input :", image.shape, type(image))
 print("coarse_output :", coarse_output.shape, type(coarse_output))
 print("fine_output :", fine_output.shape, type(fine_output))
 
@@ -85,4 +91,5 @@ plt.gca().set_title('fine_output')
 plt.imshow(fine_output, interpolation="nearest", cmap = 'Greys')
 plt.suptitle('Depth Map Prediction of Input Image')
 
-plt.show()
+#plt.show()
+plt.savefig("Result1.jpg")
