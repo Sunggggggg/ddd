@@ -26,5 +26,7 @@ def plot_grid(fig, rgb, depth, row_no):
                 grid[i*2+j].imshow(np.transpose(rgb[i].numpy(), (1, 2, 0)), interpolation="nearest")
             if(j == 1):
                 grid[i*2+j].imshow(np.transpose(depth[i][0].numpy(), (0, 1)), interpolation="nearest")
+    
+    plt.savefig("DataSet img.jpg")
 
 

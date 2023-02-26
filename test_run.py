@@ -49,6 +49,7 @@ image = np.transpose(image, (0, 1, 2))
 
 image = Image.fromarray(image)
 input_image = input_for_plot_transforms(image)
+
 image = rgb_data_transforms(image)
 image = image.view(1, 3, 228, 304)
 
@@ -64,6 +65,7 @@ coarse_output = np.transpose(coarse_output[0][0].detach().cpu().numpy(), (0, 1))
 fine_output = np.transpose(fine_output[0][0].detach().cpu().numpy(), (0, 1))
 image = np.transpose(input_image, (1, 2, 0))
 
+coarse_output = coarse_output.astype()
 print("After")
 print("input :", image.shape, type(image))
 print("coarse_output :", coarse_output.shape, type(coarse_output))
@@ -76,11 +78,11 @@ plt.imshow(image, interpolation="nearest")
 
 plt.subplot(132)
 plt.gca().set_title('coarse_output')
-plt.imshow(coarse_output, interpolation="nearest")
+plt.imshow(coarse_output, interpolation="nearest", cmap = 'Greys')
 
 plt.subplot(133)
 plt.gca().set_title('fine_output')
-plt.imshow(fine_output, interpolation="nearest")
+plt.imshow(fine_output, interpolation="nearest", cmap = 'Greys')
 plt.suptitle('Depth Map Prediction of Input Image')
 
 plt.show()
